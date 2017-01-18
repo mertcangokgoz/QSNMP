@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {packages: ['corechart']});
+    </script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://bootswatch.com/readable/bootstrap.min.css">
+    <!--     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"> -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
+    <!-- http://127.0.0.1:5000/api/1/.1.3.6.1.2.1.1.1.0 -->
+    <title>Hostlist - DEMO</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/smoothie/1.27.0/smoothie.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".delete").click(function () {
+                $.get("delete/" + $('.bid').attr('id'),
+                    function (data) {
+                        location.reload();
+                    });
+            });
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-default">
+        <a class="navbar-brand" href="#">QSNMP</a>
+        <ul class="nav navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/Dashboard">Home</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/Hostlist">Show Info</a>
+            </li>
+            <li class="nav-item right">
+                <a class="nav-link" href="/logout">Logout</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Hostnames</h3>
+            <div class="table-responsive">
+                <button class="btn btn-success btn-xs" data-title="added"
+                        data-toggle="modal"
+                        data-target="#added">Add New
+                </button>
+                <br>
+                <table id="mytable" class="table table-bordred table-striped">
+                    <thead>
+                    <th>ID</th>
+                    <th>Hostname/IP</th>
+                    <th>Update</th>
+                    <th>Status</th>
+                    <th>Delete</th>
+                    </thead>
+                    <tbody>
+                    {% set i = fetchlist | length +1 %}
+                    {% if i == 1 %}
+                        <h1>"Not Found"</h1>
+                    {% else %}
+                        {% for item in fetchlist %}
+                            {% set i = i - 1 %}
+                            <tr>
+                                <td>
+                                    {{ item['id'] }}
+                                </td>
+                                <td>
+                                    <a href="http://{{ item['hostname'] }}" target="_blank">{{ item['hostname'] }}</a>
+                                </td>
+                                <td>
+                                    <button class="btn btn-success btn-xs" data-title="Edit" data-toggle="modal"
+                                            data-target="#edit"><span
+                                            class="glyphicon glyphicon-pencil"> Edit</span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button id="{{ item['id'] }}" class="btn btn-primary btn-xs viewbtn"
+                                            data-title="Edit" data-toggle="modal"
+                                            data-target="#view"><span
+                                            class="glyphicon glyphicon-search"> View</span>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button id="{{ item['id'] }}" class="btn btn-danger btn-xs bid"
+                                            data-toggle="modal"
+                                            data-target="#delete"><span class="glyphicon glyphicon-trash"> Delete
+                                    </span></button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Dialog Panel -->
+<div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span
+                        class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                <h4 class="modal-title custom_align" id="Heading">Edit Your Hostname / IP</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input class="form-control " type="text" name="updatehost" placeholder="Hostname/IP">
+                </div>
+            </div>
+            <div class="modal-footer ">
+                <button type="button" class="btn btn-warning btn-lg" style="width: 100%;"><span
+                        class="glyphicon glyphicon-ok-sign"></span> Update
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!-- Delete Dialog Panel -->
+<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span
+                        class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                <h4 class="modal-title custom_align" id="Heading">Delete this entry</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you
+                    want to delete this Record?
+                </div>
+
+            </div>
+            <div class="modal-footer ">
+                <button class="btn btn-success delete" name="delete"><span class="glyphicon glyphicon-ok-sign"></span> Yes
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><span
+                        class="glyphicon glyphicon-remove"></span> No
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<!-- Add Dialog Panel -->
+<form action="" method="post">
+    <div class="modal fade" id="added" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span
+                            class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                    <h4 class="modal-title custom_align" id="Heading">Add Hostname / IP</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input id="hostname" class="form-control" name="hostname" type="text"
+                               placeholder="exp: 127.0.0.1 or sv1.example.com"
+                               required>
+                    </div>
+                </div>
+                <div class="modal-footer ">
+                    <button type="submit" class="btn btn-warning btn-lg" style="width: 100%;"><span
+                            class="glyphicon glyphicon-ok-sign"></span> Add
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</form>
+
+<!-- Edit Dialog Panel -->
+<div class="modal fade" id="view" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span
+                        class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+                <h4 class="modal-title custom_align" id="Heading">Statistics</h4>
+            </div>
+            <div class="modal-body">
+                <!-- Layout Here -->
+                <p>Kernel: <span id="kern-info"></span></p>
+                <h4>Memory Statistics</h4>
+                <p>Total Mem: <span id="totalmem-info"></span></p>
+                <p>Current Mem Usage:<span id="currentmem-percent"></span></p>
+                <canvas id="mycanvas" width="570" height="100"></canvas>
+                <h4>CPU Statistics</h4>
+                <p>Cpu <span>Value</span></p>
+                <h4>Disk Statistics</h4>
+                <div id="container" style="width: 550px; height: 150px; margin: 0 auto"></div>
+                <script>
+                    $(".viewbtn").click(function () {
+                        var btn_id = $(this).attr("id");
+                        $.get("/api/" + btn_id + "/.1.3.6.1.2.1.1.1.0", function (data, status) {
+                            var uname = data["value"];
+                            $("#kern-info").html(uname);
+                        });
+                        var totalram = 0;
+                        $.get("/api/" + btn_id + "/.1.3.6.1.4.1.2021.4.5.0", function (data, status) {
+                            totalram = data["value"];
+                            $("#totalmem-info").html(totalram);
+                        });
+                        chart = new SmoothieChart({
+                            interpolation: 'linear',
+                            grid: {fillStyle: '#ffffff'},
+                            labels: {fillStyle: '#000000', precision: 0},
+                            minValue: 0,
+                            timestampFormatter: SmoothieChart.timeFormatter
+                        }),
+                            canvas = document.getElementById('mycanvas'),
+                            series = new TimeSeries();
+
+                        var refreshInt = setInterval(function () {
+                            $.get("/api/" + btn_id + "/.1.3.6.1.4.1.2021.4.6.0", function (data, status) {
+                                var curr_ram_percent = (data["value"] / totalram) * 100;
+                                $("#currentmem-percent").html(curr_ram_percent.toFixed(1) + " %");
+                                series.append(new Date().getTime(), curr_ram_percent);
+                                chart.addTimeSeries(series, {lineWidth: 1, strokeStyle: '#ff0000'});
+                            });
+                        }, 1000);
+                        $('#view').on('hidden.bs.modal', function () {
+                            clearInterval(refreshInt);
+                            var chart = "";
+                            var series = [];
+                        });
+                        chart.streamTo(canvas, 2000);
+
+                        jQuery.ajaxSetup({async: false}); //
+
+                        var device = "";
+                        $.get("/api/" + btn_id + "/.1.3.6.1.4.1.2021.9.1.3.1", function (data, status) {
+                            device = data["value"];
+                        });
+
+                        var disk_used = 0;
+                        $.get("/api/" + btn_id + "/.1.3.6.1.4.1.2021.9.1.8.1", function (data, status) {
+                            disk_used = parseInt(data["value"]);
+                        });
+
+                        var disk_avail = 0;
+                        $.get("/api/" + btn_id + "/.1.3.6.1.4.1.2021.9.1.7.1", function (data, status) {
+                            disk_avail = parseInt(data["value"]);
+                        });
+
+                        $.get("/api/" + btn_id + "/.1.3.6.1.4.1.2021.9.1.9.1", function (data, status) {
+                            console.log(data["value"]);
+                        });
+
+                        function drawChart() {
+                            // Define the chart to be drawn.
+
+                            //var disk_device = device_name_data;
+                            //console.log(disk_used);
+                            //console.log(disk_avail);
+
+                            var data = google.visualization.arrayToDataTable([
+                                ['Disk', 'Used', 'Free'],
+                                [device, disk_used, disk_avail]
+                            ]);
+
+
+                            var options = {
+                                colors: ['#ff0000', '#eee'],
+                                isStacked: 'percent',
+                                height: 150,
+                                width: 570,
+                                legend: {position: 'right', maxLines: 4},
+                                hAxis: {
+                                    minValue: 0,
+                                    ticks: [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1]
+                                }
+                            };
+
+                            var chart = new google.visualization.BarChart(document.getElementById('container'));
+                            chart.draw(data, options);
+                        }
+
+                        google.charts.setOnLoadCallback(drawChart);
+                    });
+
+                </script>
+
+
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+</body>
+</html>
