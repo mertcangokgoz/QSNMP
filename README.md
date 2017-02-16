@@ -1,43 +1,50 @@
 # TODO List
 
 - [X] API Endpoint Json
-- [X] API Sorgularının yapılması
-- [X] SNMP için sorguların yazılması
-- [X] SNMP ile alınan verilerin insancıllaştırılması
-- [X] Kullanıcı bilgilerinin veritabanında tutulması (postgresql)
-- [X] Hostname / IP ekleme, silme işlevleri
-- [X] IP ve Host bilgilerinin veritabanında tutulması (postgresql)
-- [X] Ajax Sorgularının Yazılması
-- [X] Karşılaştırmaların yapılması
-- [X] Google Chart ile görselleştirme
-- [X] Kodun düzenlenmesi okunabilirlik arttırma
-- [x] Güvenlik düzenlemeleri
-- [X] Testlerin yapılması
-- [X] Hataların Çözülmesi(login alanı, minör buglar(görsellik,hata mesajları))
+- [X] Making API queries
+- [X] Writing queries for SNMP
+- [X] Humanizing the data received via SNMP
+- [X] Keeping user information in the database (PostgreSQL)
+- [X] Hostname / IP add and delete functions
+- [X] Keeping IP and Host information in the database (PostgreSQL)
+- [X] Writing Ajax queries
+- [X] Making comparisons
+- [X] Visualization with Google Chart
+- [X] Code editing to increase readability
+- [x] Safety regulations
+- [X] Performing the tests
+- [X] Resolution of errors (login area, minor bugs (visuals, error messages))
 
+## Update 1 (Soon)
 
-# Test Makina
+- Security improvements
+- Improvements in visualization
+- Recaptcha to be added
+- More API Examples
+- Error messages will be improved
 
-### Makina 1
+# Test Servers (Finished)
+
+### Server 1
 
 **IP :** 138.68.108.208
 
 **OS :** Centos 7
 
-### Makina 2
+### Server 2
 
 **IP :** 178.62.94.188
 
 **OS :** Debian 8
 
-# Gerekliler şimdilik
+# Requirements
 
 ```
 sudo apt install build-essential python-dev python3-pip
 pip3 install -t lib -r requirements.txt
 ```
 
-# Örnek SNMP
+# Example Basic SNMP API
 
 ```python
 from easysnmp import Session
