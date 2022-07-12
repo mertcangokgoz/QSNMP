@@ -1,14 +1,7 @@
-import flask
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from werkzeug.security import generate_password_hash, check_password_hash
 
-application = flask.Flask(__name__)
-application.config.update(
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    SQLALCHEMY_DATABASE_URI='postgresql://postgres:password@localhost:5432/demo-proje2'
-)
-
-db = SQLAlchemy(application)
+from app import db, create_app
 
 
 class User(db.Model):
@@ -17,9 +10,11 @@ class User(db.Model):
     """
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(90), )
+    username = db.Column(db.String(255), unique=True, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    active = db.Column(db.Boolean(), default=False)
 
     def __init__(self, username, email, password):
         self.username = username
@@ -66,4 +61,4 @@ class HostName(db.Model):
         return '%r' % self.hostname
 
 
-db.create_all()
+db.create_all(app=create_app())

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "qsnmp"
+version = "0.1.0"
+description = ""
+authors = ["mertcangokgoz <mertcan.gokgoz@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^2.1.2"
+Flask-Login = "^0.6.1"
+Flask-RESTful = "^0.3.9"
+Flask-SQLAlchemy = "^2.5.1"
+pysnmp = "^4.4.12"
+psycopg2-binary = "^2.9.3"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

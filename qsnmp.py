@@ -1,29 +1,14 @@
-import os.path
 import flask
 import flask_login
 from flask import session
 from flask_restful import Api
-from app.Model import User, HostName
-from app.apiClass import MainAPI
-from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Resource
+from pysnmp.hlapi import getCmd, SnmpEngine, CommunityData, UdpTransportTarget, ContextData, ObjectType, ObjectIdentity
 
-application = flask.Flask(__name__)
-application.config.from_object(__name__)
-application.jinja_env.autoescape = True | False
+from app import create_app, db
+from model import User, HostName
 
-Api(application).add_resource(MainAPI, '/api/<int:id>/<oid>')
-
-db = SQLAlchemy(application)
-
-application.config.update(
-    SECRET_KEY=os.urandom(32),
-    SESSION_COOKIE_NAME="pre_demo",
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SECURE=False,
-    SESSION_KEY_PREFIX="demo_",
-    SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    SQLALCHEMY_DATABASE_URI='postgresql://postgres:muratcan55@localhost:5432/demo-proje2'
-)
+application = create_app()
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(application)
@@ -126,5 +111,33 @@ def unauthorized_handler():
     return flask.render_template('blocked.html')
 
 
+class MainAPI(Resource):
+    def get(self, id, oid):
+        try:
+            u = HostName.query.filter_by(id=id).first()
+            session = getCmd(
+                SnmpEngine(),
+                CommunityData('public'),
+                UdpTransportTarget((u.hostname, 161)),
+                ContextData(),
+                ObjectType(ObjectIdentity(oid))
+            )
+            errorIndication, errorStatus, errorIndex, varBinds = next(session)
+            if errorIndication:
+                return flask.flash('Error: %s' % errorIndication)
+            elif errorStatus:
+                return flask.flash(
+                    '%s at %s' % (errorStatus.prettyPrint(), errorIndex and varBinds[int(errorIndex) - 1] or '?')
+                )
+            else:
+                for varBind in varBinds:  # SNMP response contents
+                    print(' = '.join([x.prettyPrint() for x in varBind]))
+        except (TimeoutError, NameError, ReferenceError):
+            return flask.flash('timed out while connecting to remote host')
+
+
+# API class for the main page
+Api(application).add_resource(MainAPI, '/api/<int:id>/<oid>')
+
 if __name__ == '__main__':
-    application.run(host='127.0.0.1', debug=True)
+    application.run(host='127.0.0.1', port=8080, debug=True)  # run app in debug mode on port 8080
