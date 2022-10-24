@@ -27,10 +27,11 @@ def page_not_found(e):
 
 @application.route('/', methods=['GET'])
 def main_page():
-    if not session.get('logged_in'):
-        return flask.redirect(flask.url_for('.login'))
-    else:
-        return flask.redirect(flask.url_for('.dashboard_panel'))
+    return (
+        flask.redirect(flask.url_for('.dashboard_panel'))
+        if session.get('logged_in')
+        else flask.redirect(flask.url_for('.login'))
+    )
 
 
 @application.route('/register', methods=['GET', 'POST'])
@@ -98,12 +99,10 @@ def ip_adr():
 @application.route('/logout', methods=['GET'])
 @flask_login.login_required
 def logout():
-    if session.get('logged_in') is False:
-        return flask.redirect(flask.url_for('.main_page'))
-    else:
+    if session.get('logged_in') is not False:
         session['logged_in'] = False
         flask_login.logout_user()
-        return flask.redirect(flask.url_for('.main_page'))
+    return flask.redirect(flask.url_for('.main_page'))
 
 
 @login_manager.unauthorized_handler
@@ -124,11 +123,12 @@ class MainAPI(Resource):
             )
             errorIndication, errorStatus, errorIndex, varBinds = next(session)
             if errorIndication:
-                return flask.flash('Error: %s' % errorIndication)
+                return flask.flash(f'Error: {errorIndication}')
             elif errorStatus:
                 return flask.flash(
-                    '%s at %s' % (errorStatus.prettyPrint(), errorIndex and varBinds[int(errorIndex) - 1] or '?')
+                    f"{errorStatus.prettyPrint()} at {errorIndex and varBinds[int(errorIndex) - 1] or '?'}"
                 )
+
             else:
                 for varBind in varBinds:  # SNMP response contents
                     print(' = '.join([x.prettyPrint() for x in varBind]))
